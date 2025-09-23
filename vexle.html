@@ -1,73 +1,362 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Flagle Mini Demo</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Flagle — Color-overlap Flag Guessing Game (Mini)</title>
 <style>
-  body { font-family: sans-serif; padding: 2rem; }
-  .flag { display:flex; margin:1rem 0; }
-  .color { width:50px; height:30px; margin:0 2px; border:1px solid #333; }
+  :root{ --bg:#071029; --card:#0b1320; --muted:#9fb0d6; --accent:#0ea5e9; }
+  html,body{height:100%;}
+  body{
+    margin:0; background:linear-gradient(180deg,var(--bg),#041026); color:#e6eef8; font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .app{ width:980px; max-width:96vw; background:linear-gradient(180deg,#071427,#02121b); border-radius:12px; padding:18px; box-shadow:0 10px 40px rgba(2,6,23,0.7); }
+  header{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  h1{ font-size:20px; margin:0; }
+  .controls{ display:flex; gap:8px; align-items:center; }
+  select,input{ padding:8px 10px; border-radius:8px; border:0; background:#0f2333; color:var(--muted); min-width:180px; }
+  button{ padding:8px 10px; border-radius:8px; border:0; background:var(--accent); color:white; font-weight:600; cursor:pointer; }
+
+  .layout{ display:grid; grid-template-columns: 1fr 340px; gap:18px; margin-top:16px; }
+  .panel{ background:linear-gradient(180deg,#051528,#03121a); padding:12px; border-radius:10px; }
+
+  .flag-row{ display:flex; gap:12px; align-items:center; }
+  .flag-visual{ width:340px; height:160px; background:linear-gradient(180deg,#051828,#03121a); display:flex; align-items:center; justify-content:center; border-radius:8px; border:1px solid rgba(255,255,255,0.04); }
+  .flag-box{ width:80%; height:72%; }
+
+  .tile{ display:inline-block; width:36px; height:18px; border-radius:4px; margin-right:6px; border:1px solid rgba(0,0,0,0.15); box-shadow:0 2px 6px rgba(0,0,0,0.25) inset; }
+  .color-name{ font-size:12px; color:var(--muted); margin-top:6px; }
+
+  .revealed{ outline:3px solid rgba(255,255,255,0.06); transform:scale(1.02); }
+  .dimmed{ filter:grayscale(100%) brightness(.6); opacity:.6; }
+
+  .history{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+  .history .row{ display:flex; gap:8px; align-items:center; }
+  .muted{ color:var(--muted); font-size:13px; }
+
+  .possible-list{ margin-top:12px; max-height:260px; overflow:auto; padding-right:6px; }
+  .possible-item{ padding:6px 8px; border-radius:6px; background:rgba(255,255,255,0.02); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; }
+
+  footer{ margin-top:12px; display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:13px; }
+
+  /* small screens */
+  @media (max-width:880px){ .layout{ grid-template-columns: 1fr; } .flag-visual{ width:100%; } }
 </style>
 </head>
 <body>
+<div class="app">
+  <header>
+    <div>
+      <h1>Flagle — Color-overlap Flag Guessing (Mini)</h1>
+      <div class="muted">Guess the secret flag. When you guess, any colours present in both your guess and the secret will be revealed.</div>
+    </div>
 
-<h1>Flagle Mini Demo</h1>
-<p>Guess the flag! Type a country (france, italy, germany, japan, nigeria).</p>
+    <div class="controls">
+      <select id="guessSelect"></select>
+      <button id="guessBtn">Guess</button>
+      <button id="resetBtn" style="background:#334155;">Reset</button>
+    </div>
+  </header>
 
-<input id="guessInput" placeholder="Enter country"/>
-<button id="guessBtn">Guess</button>
+  <div class="layout">
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <div>
+          <div class="muted">Your last guess</div>
+          <div id="lastGuess" style="margin-top:6px;"></div>
+        </div>
+        <div>
+          <div class="muted">Revealed colours</div>
+          <div id="revealedList" style="margin-top:6px; display:flex; align-items:center; flex-wrap:wrap;"></div>
+        </div>
+      </div>
 
-<h2>Your Guess</h2>
-<div id="guessFlag" class="flag"></div>
+      <div style="margin-top:12px;">
+        <div class="muted">Guess history</div>
+        <div id="history" class="history"></div>
+      </div>
 
-<h2>Overlapping Colors</h2>
-<div id="overlapFlag" class="flag"></div>
+      <div style="margin-top:12px;">
+        <div class="muted">Possible countries (filtered by revealed colours)</div>
+        <div id="possible" class="possible-list"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="muted">Target flag (hidden)</div>
+      <div id="targetFlag" class="flag-visual" title="Secret flag — it's hidden until you guess it exactly.">
+        <svg class="flag-box" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+
+      <div style="margin-top:12px;">
+        <div class="muted">Example guess (click to preview matching colours)</div>
+        <div class="flag-visual" style="margin-top:8px; cursor:pointer;" id="guessPreview">
+          <svg class="flag-box" viewBox="0 0 300 200" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+        <div class="muted" style="margin-top:8px;">Click a preview to highlight overlap with revealed colours.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div>Flags included: <span class="muted" id="count"></span></div>
+    <div class="muted">Tip: revealed colours act as clues — target must contain ALL revealed colours.</div>
+  </footer>
+</div>
 
 <script>
+/*
+  Mini Flagle game (single-file):
+  - Flags are represented as SVGs built from known color bands/shapes.
+  - Each flag has a canonical list of colours (color names or hex values).
+  - When the player guesses a country, we compute the intersection between guess colors and target colors.
+  - Revealed colours accumulate (union of intersections across guesses). The target must contain all revealed colours.
+  - Possible countries are filtered to those whose colour lists include all revealed colours.
+*/
+
 const FLAGS = {
-  france: ["blue", "white", "red"],
-  italy: ["green", "white", "red"],
-  germany: ["black", "red", "yellow"],
-  japan: ["white", "red"],
-  nigeria: ["green", "white"],
+  france: {name:'France', colors:['#0055A4','#FFFFFF','#EF4135'], svg: (g) => {
+    // vertical tricolor: blue, white, red
+    g.innerHTML = `
+      <rect x="0" y="0" width="100" height="200" fill="#0055A4" />
+      <rect x="100" y="0" width="100" height="200" fill="#FFFFFF" />
+      <rect x="200" y="0" width="100" height="200" fill="#EF4135" />
+    `;
+  }},
+
+  italy: {name:'Italy', colors:['#009246','#FFFFFF','#CE2B37'], svg: (g)=>{
+    g.innerHTML = `
+      <rect x="0" y="0" width="100" height="200" fill="#009246" />
+      <rect x="100" y="0" width="100" height="200" fill="#FFFFFF" />
+      <rect x="200" y="0" width="100" height="200" fill="#CE2B37" />
+    `;
+  }},
+
+  germany: {name:'Germany', colors:['#000000','#DD0000','#FFCE00'], svg: (g)=>{
+    g.innerHTML = `
+      <rect x="0" y="0" width="300" height="66.66" fill="#000000" />
+      <rect x="0" y="66.66" width="300" height="66.66" fill="#DD0000" />
+      <rect x="0" y="133.32" width="300" height="66.68" fill="#FFCE00" />
+    `;
+  }},
+
+  japan: {name:'Japan', colors:['#FFFFFF','#BC002D'], svg: (g)=>{
+    g.innerHTML = `
+      <rect x="0" y="0" width="300" height="200" fill="#FFFFFF" />
+      <circle cx="150" cy="100" r="40" fill="#BC002D" />
+    `;
+  }},
+
+  nigeria: {name:'Nigeria', colors:['#008753','#FFFFFF'], svg: (g)=>{
+    g.innerHTML = `
+      <rect x="0" y="0" width="100" height="200" fill="#008753" />
+      <rect x="100" y="0" width="100" height="200" fill="#FFFFFF" />
+      <rect x="200" y="0" width="100" height="200" fill="#008753" />
+    `;
+  }},
+
+  russia: {name:'Russia', colors:['#FFFFFF','#0039A6','#D52B1E'], svg: (g)=>{
+    g.innerHTML = `
+      <rect x="0" y="0" width="300" height="66.66" fill="#FFFFFF" />
+      <rect x="0" y="66.66" width="300" height="66.66" fill="#0039A6" />
+      <rect x="0" y="133.32" width="300" height="66.68" fill="#D52B1E" />
+    `;
+  }},
+
+  uk: {name:'United Kingdom', colors:['#012169','#FFFFFF','#C8102E'], svg: (g)=>{
+    // simplified union-jack like representation using colored shapes (not perfect)
+    g.innerHTML = `
+      <rect x="0" y="0" width="300" height="200" fill="#012169" />
+      <polygon points="0,0 40,0 300,140 300,200 260,200 0,60" fill="#FFFFFF" />
+      <polygon points="300,0 260,0 0,140 0,200 40,200 300,60" fill="#FFFFFF" />
+      <polygon points="0,0 60,0 300,180 300,200 240,200 0,20" fill="#C8102E" />
+      <polygon points="300,0 240,0 0,180 0,200 60,200 300,20" fill="#C8102E" />
+    `;
+  }},
+
+  spain: {name:'Spain', colors:['#AA151B','#F1BF00','#AA151B'], svg: (g)=>{
+    g.innerHTML = `
+      <rect x="0" y="0" width="300" height="50" fill="#AA151B" />
+      <rect x="0" y="50" width="300" height="100" fill="#F1BF00" />
+      <rect x="0" y="150" width="300" height="50" fill="#AA151B" />
+    `;
+  }},
+
 };
 
-// pick target at random
-const countries = Object.keys(FLAGS);
-const target = countries[Math.floor(Math.random()*countries.length)];
-const targetColors = FLAGS[target];
+const COUNTRY_KEYS = Object.keys(FLAGS);
 
-function drawFlag(container, colors){
-  container.innerHTML = "";
-  colors.forEach(c=>{
-    const div = document.createElement("div");
-    div.className = "color";
-    div.style.background = c;
-    container.appendChild(div);
+// pick a random target
+let targetKey = COUNTRY_KEYS[Math.floor(Math.random()*COUNTRY_KEYS.length)];
+let revealed = new Set(); // accumulated revealed colours (hex strings)
+let history = []; // array of {guessKey, overlap}
+
+// UI refs
+const guessSelect = document.getElementById('guessSelect');
+const guessBtn = document.getElementById('guessBtn');
+const resetBtn = document.getElementById('resetBtn');
+const lastGuessEl = document.getElementById('lastGuess');
+const revealedListEl = document.getElementById('revealedList');
+const historyEl = document.getElementById('history');
+const possibleEl = document.getElementById('possible');
+const countEl = document.getElementById('count');
+
+// SVG containers
+const targetSvg = document.querySelector('#targetFlag svg');
+const previewSvg = document.querySelector('#guessPreview svg');
+
+function init(){
+  // populate select
+  guessSelect.innerHTML = '';
+  COUNTRY_KEYS.forEach(k=>{
+    const opt = document.createElement('option'); opt.value = k; opt.textContent = FLAGS[k].name; guessSelect.appendChild(opt);
+  });
+  countEl.textContent = COUNTRY_KEYS.length;
+  renderTargetHidden();
+  renderPreview(COUNTRY_KEYS[0]);
+  updatePossible();
+}
+
+function renderTargetHidden(){
+  // draw the target into the targetSvg but keep it visually hidden (dimmed)
+  FLAGS[targetKey].svg(targetSvg);
+  // dim children so it's not obvious
+  Array.from(targetSvg.children).forEach(el=>{ el.classList.add('dimmed'); el.style.transition = 'all .18s'; });
+}
+
+function renderPreview(key){
+  previewSvg.innerHTML = '';
+  FLAGS[key].svg(previewSvg);
+  // apply classes according to revealed set: if a colour is revealed, highlight the matching shapes
+  highlightSvgByRevealed(previewSvg, key);
+}
+
+function highlightSvgByRevealed(svgEl, key){
+  // We will try to match fill colours of shapes to known list for the flag
+  const known = FLAGS[key].colors.map(c=>c.toLowerCase());
+  // Build mapping from shape index to color value
+  Array.from(svgEl.children).forEach((el, idx)=>{
+    const fill = (el.getAttribute('fill') || '').toLowerCase();
+    if(!fill) return;
+    if(revealed.has(fill)){
+      el.classList.remove('dimmed'); el.classList.add('revealed');
+      el.style.opacity = 1;
+    } else {
+      el.classList.remove('revealed'); el.classList.add('dimmed'); el.style.opacity = .6;
+    }
   });
 }
 
-document.getElementById("guessBtn").onclick = ()=>{
-  const guess = document.getElementById("guessInput").value.trim().toLowerCase();
-  if(!(guess in FLAGS)){
-    alert("Unknown country");
-    return;
+function colorIntersection(guessKey){
+  const gcolors = FLAGS[guessKey].colors.map(c=>c.toLowerCase());
+  const tcolors = FLAGS[targetKey].colors.map(c=>c.toLowerCase());
+  return gcolors.filter(c=> tcolors.includes(c));
+}
+
+function onGuess(){
+  const guessKey = guessSelect.value;
+  const overlap = colorIntersection(guessKey);
+  // add to revealed
+  overlap.forEach(c=>revealed.add(c));
+  history.unshift({guessKey, overlap});
+  updateUIAfterGuess(guessKey, overlap);
+  // if guessed correctly, reveal target fully
+  if(guessKey === targetKey){
+    revealTargetFully();
+    alert('Correct! The target flag was: ' + FLAGS[targetKey].name.toUpperCase());
   }
-  const guessColors = FLAGS[guess];
+}
 
-  // draw guess flag
-  drawFlag(document.getElementById("guessFlag"), guessColors);
+function updateUIAfterGuess(guessKey, overlap){
+  // last guess visual
+  lastGuessEl.innerHTML = '';
+  const small = document.createElement('div'); small.className = 'flag-row';
+  const box = document.createElement('div'); box.style.width = '220px';
+  const ssvg = document.createElementNS('http://www.w3.org/2000/svg','svg'); ssvg.setAttribute('viewBox','0 0 300 200'); ssvg.setAttribute('class','flag-box');
+  FLAGS[guessKey].svg(ssvg);
+  // highlight overlap on last guess: reveal matching colours
+  Array.from(ssvg.children).forEach(el=>{ const f = (el.getAttribute('fill')||'').toLowerCase(); if(overlap.includes(f)){ el.classList.add('revealed'); } else { el.classList.add('dimmed'); } });
+  box.appendChild(ssvg); small.appendChild(box);
+  const info = document.createElement('div'); info.innerHTML = `<div style="font-weight:700">${FLAGS[guessKey].name}</div><div class="muted">Overlap: ${overlap.length ? overlap.map(c=>c).join(', ') : '—'}</div>`;
+  small.appendChild(info);
+  lastGuessEl.appendChild(small);
 
-  // find overlapping colors
-  const overlap = guessColors.filter(c => targetColors.includes(c));
-  drawFlag(document.getElementById("overlapFlag"), overlap);
+  // revealed list
+  renderRevealedList();
 
-  // win check
-  if(guess === target){
-    alert("You got it! The flag was " + target.toUpperCase());
-  }
-};
+  // history
+  renderHistory();
+
+  // update preview highlight and possible list
+  renderPreview(guessSelect.value);
+  updatePossible();
+}
+
+function renderRevealedList(){
+  revealedListEl.innerHTML = '';
+  if(revealed.size===0){ revealedListEl.textContent = '—'; return; }
+  Array.from(revealed).forEach(c=>{
+    const tile = document.createElement('div'); tile.className='tile'; tile.style.background = c; tile.title = c; revealedListEl.appendChild(tile);
+  });
+}
+
+function renderHistory(){
+  historyEl.innerHTML = '';
+  history.forEach(h=>{
+    const row = document.createElement('div'); row.className='row';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg'); svg.setAttribute('viewBox','0 0 300 200'); svg.setAttribute('width','120'); svg.setAttribute('height','70'); FLAGS[h.guessKey].svg(svg);
+    // show overlap by adding border on matching shapes
+    Array.from(svg.children).forEach(el=>{ const f = (el.getAttribute('fill')||'').toLowerCase(); if(h.overlap.includes(f)) el.classList.add('revealed'); else el.classList.add('dimmed'); });
+    row.appendChild(svg);
+    const txt = document.createElement('div'); txt.innerHTML = `<div style="font-weight:700">${FLAGS[h.guessKey].name}</div><div class="muted">Overlap: ${h.overlap.length? h.overlap.map(x=>x).join(', '): '—'}</div>`;
+    row.appendChild(txt);
+    historyEl.appendChild(row);
+  });
+}
+
+function updatePossible(){
+  // possible countries are those whose color sets include ALL revealed colours
+  const revealedArr = Array.from(revealed);
+  possibleEl.innerHTML = '';
+  const possible = COUNTRY_KEYS.filter(k=>{
+    const cs = FLAGS[k].colors.map(c=>c.toLowerCase());
+    return revealedArr.every(rc=> cs.includes(rc));
+  });
+  if(possible.length===0){ possibleEl.innerHTML = '<div class="muted">No countries match all revealed colours yet.</div>'; return; }
+  possible.forEach(k=>{
+    const item = document.createElement('div'); item.className='possible-item';
+    item.innerHTML = `<div style="font-weight:700">${FLAGS[k].name}</div><div class="muted">${FLAGS[k].colors.map(c=>c).join(', ')}</div>`;
+    possibleEl.appendChild(item);
+  });
+}
+
+function revealTargetFully(){
+  Array.from(targetSvg.children).forEach(el=>{ el.classList.remove('dimmed'); el.classList.add('revealed'); el.style.opacity = 1; });
+}
+
+function resetGame(){
+  targetKey = COUNTRY_KEYS[Math.floor(Math.random()*COUNTRY_KEYS.length)];
+  revealed = new Set(); history = [];
+  lastGuessEl.innerHTML = '';
+  revealedListEl.innerHTML = '';
+  historyEl.innerHTML = '';
+  possibleEl.innerHTML = '';
+  targetSvg.innerHTML = '';
+  previewSvg.innerHTML = '';
+  init();
+}
+
+// events
+guessBtn.addEventListener('click', ()=>{ onGuess(); });
+resetBtn.addEventListener('click', ()=>{ if(confirm('Reset game and pick a new target?')) resetGame(); });
+
+// preview click toggles highlight against current revealed set
+document.getElementById('guessPreview').addEventListener('click', ()=>{ renderPreview(guessSelect.value); });
+
+// init
+init();
+
 </script>
-
 </body>
 </html>
