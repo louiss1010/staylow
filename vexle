@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Flagle Mini Demo</title>
+<style>
+  body { font-family: sans-serif; padding: 2rem; }
+  .flag { display:flex; margin:1rem 0; }
+  .color { width:50px; height:30px; margin:0 2px; border:1px solid #333; }
+</style>
+</head>
+<body>
+
+<h1>Flagle Mini Demo</h1>
+<p>Guess the flag! Type a country (france, italy, germany, japan, nigeria).</p>
+
+<input id="guessInput" placeholder="Enter country"/>
+<button id="guessBtn">Guess</button>
+
+<h2>Your Guess</h2>
+<div id="guessFlag" class="flag"></div>
+
+<h2>Overlapping Colors</h2>
+<div id="overlapFlag" class="flag"></div>
+
+<script>
+const FLAGS = {
+  france: ["blue", "white", "red"],
+  italy: ["green", "white", "red"],
+  germany: ["black", "red", "yellow"],
+  japan: ["white", "red"],
+  nigeria: ["green", "white"],
+};
+
+// pick target at random
+const countries = Object.keys(FLAGS);
+const target = countries[Math.floor(Math.random()*countries.length)];
+const targetColors = FLAGS[target];
+
+function drawFlag(container, colors){
+  container.innerHTML = "";
+  colors.forEach(c=>{
+    const div = document.createElement("div");
+    div.className = "color";
+    div.style.background = c;
+    container.appendChild(div);
+  });
+}
+
+document.getElementById("guessBtn").onclick = ()=>{
+  const guess = document.getElementById("guessInput").value.trim().toLowerCase();
+  if(!(guess in FLAGS)){
+    alert("Unknown country");
+    return;
+  }
+  const guessColors = FLAGS[guess];
+
+  // draw guess flag
+  drawFlag(document.getElementById("guessFlag"), guessColors);
+
+  // find overlapping colors
+  const overlap = guessColors.filter(c => targetColors.includes(c));
+  drawFlag(document.getElementById("overlapFlag"), overlap);
+
+  // win check
+  if(guess === target){
+    alert("You got it! The flag was " + target.toUpperCase());
+  }
+};
+</script>
+
+</body>
+</html>
