@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crossword Player (.puz)</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 2rem;
+      background: #f8f9fa;
+      color: #222;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+    input[type="file"] { margin-bottom: 1rem; }
+    #grid {
+      display: grid;
+      gap: 2px;
+      margin-top: 1rem;
+      user-select: none;
+    }
+    .cell {
+      width: 30px;
+      height: 30px;
+      text-transform: uppercase;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+    }
+    .black {
+      background: #000;
+      border: 1px solid #000;
+    }
+    #title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+    #clues {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 2rem;
+    }
+    #clues h2 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { font-size: 0.9rem; margin-bottom: 0.25rem; }
+    #status {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>Crossword Player</h1>
+  <input type="file" id="fileInput" accept=".puz" />
+  <div id="title"></div>
+  <div id="grid"></div>
+  <div id="status"></div>
+
+  <div id="clues">
+    <div>
+      <h2>Across</h2>
+      <ul id="acrossList"></ul>
+    </div>
+    <div>
+      <h2>Down</h2>
+      <ul id="downList"></ul>
+    </div>
+  </div>
+
+  <!-- puzjs from CDN -->
+  <script src="https://unpkg.com/puzjs/dist/puz.js"></script>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const gridContainer = document.getElementById('grid');
+    const titleEl = document.getElementById('title');
+    const statusEl = document.getElementById('status');
+    const acrossList = document.getElementById('acrossList');
+    const downList = document.getElementById('downList');
+
+    let puzzle = null;
+    let cells = [];
+
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const arrayBuffer = await file.arrayBuffer();
+      puzzle = PUZ.parse(new Uint8Array(arrayBuffer));
+
+      // Title
+      titleEl.textContent = puzzle.title || '(Untitled Puzzle)';
+
+      // Build grid
+      const width = puzzle.width;
+      const height = puzzle.height;
+      const grid = puzzle.fill.split('');
+      gridContainer.style.gridTemplateColumns = `repeat(${width}, 30px)`;
+      gridContainer.innerHTML = '';
+      cells = [];
+
+      grid.forEach((cell, i) => {
+        const input = document.createElement('input');
+        input.maxLength = 1;
+        input.className = 'cell';
+        input.dataset.index = i;
+
+        if (cell === '.') {
+          input.disabled = true;
+          input.classList.add('black');
+        }
+
+        input.addEventListener('input', handleInput);
+        input.addEventListener('keydown', handleKeyDown);
+        cells.push(input);
+        gridContainer.appendChild(input);
+      });
+
+      // Clues
+      acrossList.innerHTML = '';
+      downList.innerHTML = '';
+      puzzle.clues.across.forEach((c) => {
+        const li = document.createElement('li');
+        li.textContent = c;
+        acrossList.appendChild(li);
+      });
+      puzzle.clues.down.forEach((c) => {
+        const li = document.createElement('li');
+        li.textContent = c;
+        downList.appendChild(li);
+      });
+
+      statusEl.textContent = '';
+    });
+
+    // Moves right on typing, left on backspace, and checks completion
+    function handleInput(e) {
+      const input = e.target;
+      const idx = parseInt(input.dataset.index);
+      const val = input.value.toUpperCase();
+      input.value = val;
+
+      // move to next open cell
+      if (val && puzzle) {
+        moveToNextCell(idx);
+      }
+      checkCompletion();
+    }
+
+    function handleKeyDown(e) {
+      const idx = parseInt(e.target.dataset.index);
+      if (e.key === 'Backspace' && !e.target.value) {
+        moveToPrevCell(idx);
+      }
+    }
+
+    function moveToNextCell(idx) {
+      const width = puzzle.width;
+      for (let i = idx + 1; i < cells.length; i++) {
+        if (!cells[i].disabled) {
+          cells[i].focus();
+          break;
+        }
+      }
+    }
+
+    function moveToPrevCell(idx) {
+      for (let i = idx - 1; i >= 0; i--) {
+        if (!cells[i].disabled) {
+          cells[i].focus();
+          break;
+        }
+      }
+    }
+
+    function checkCompletion() {
+      if (!puzzle) return;
+      const solution = puzzle.solution.split('');
+      for (let i = 0; i < solution.length; i++) {
+        if (solution[i] === '.') continue; // skip black cells
+        if (cells[i].value.toUpperCase() !== solution[i].toUpperCase()) {
+          statusEl.textContent = '';
+          return; // not done yet
+        }
+      }
+      statusEl.textContent = '✅ Puzzle Complete!';
+    }
+  </script>
+</body>
+</html>
