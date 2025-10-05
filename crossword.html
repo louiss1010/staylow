@@ -7,12 +7,22 @@
   <style>
     body {
       font-family: system-ui, sans-serif;
-      margin: 2rem;
       background: #f8f9fa;
       color: #222;
+      margin: 2rem;
     }
-    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
-    input[type="file"] { margin-bottom: 1rem; }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
+    input[type="file"] {
+      margin-bottom: 1rem;
+    }
+    #title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 0.5rem 0;
+    }
     #grid {
       display: grid;
       gap: 2px;
@@ -26,28 +36,36 @@
       text-align: center;
       font-weight: bold;
       font-size: 1rem;
-      border: 1px solid #ccc;
+      border: 1px solid #bbb;
+      background: white;
+    }
+    .cell:focus {
+      outline: 2px solid #007bff;
+      background: #e6f0ff;
     }
     .black {
       background: #000;
       border: 1px solid #000;
     }
-    #title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-top: 0.5rem;
-    }
     #clues {
-      margin-top: 1.5rem;
       display: flex;
       gap: 2rem;
+      margin-top: 1.5rem;
     }
     #clues h2 {
       font-size: 1rem;
       margin-bottom: 0.5rem;
     }
-    ul { list-style: none; padding: 0; margin: 0; }
-    li { font-size: 0.9rem; margin-bottom: 0.25rem; }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-width: 300px;
+    }
+    li {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
     #status {
       margin-top: 1rem;
       font-weight: bold;
@@ -73,94 +91,90 @@
     </div>
   </div>
 
-  <!-- puzjs from CDN -->
+  <!-- puzjs library -->
   <script src="https://unpkg.com/puzjs/dist/puz.js"></script>
-
   <script>
-    const fileInput = document.getElementById('fileInput');
-    const gridContainer = document.getElementById('grid');
-    const titleEl = document.getElementById('title');
-    const statusEl = document.getElementById('status');
-    const acrossList = document.getElementById('acrossList');
-    const downList = document.getElementById('downList');
+    const fileInput = document.getElementById("fileInput");
+    const gridContainer = document.getElementById("grid");
+    const titleEl = document.getElementById("title");
+    const statusEl = document.getElementById("status");
+    const acrossList = document.getElementById("acrossList");
+    const downList = document.getElementById("downList");
 
     let puzzle = null;
     let cells = [];
 
-    fileInput.addEventListener('change', async (e) => {
+    fileInput.addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (!file) return;
       const arrayBuffer = await file.arrayBuffer();
       puzzle = PUZ.parse(new Uint8Array(arrayBuffer));
 
-      // Title
-      titleEl.textContent = puzzle.title || '(Untitled Puzzle)';
+      titleEl.textContent = puzzle.title || "(Untitled Crossword)";
+      renderGrid();
+      renderClues();
+      statusEl.textContent = "";
+    });
 
-      // Build grid
+    function renderGrid() {
       const width = puzzle.width;
       const height = puzzle.height;
-      const grid = puzzle.fill.split('');
+      const grid = puzzle.fill.split("");
       gridContainer.style.gridTemplateColumns = `repeat(${width}, 30px)`;
-      gridContainer.innerHTML = '';
+      gridContainer.innerHTML = "";
       cells = [];
 
-      grid.forEach((cell, i) => {
-        const input = document.createElement('input');
+      grid.forEach((ch, i) => {
+        const input = document.createElement("input");
         input.maxLength = 1;
-        input.className = 'cell';
+        input.className = "cell";
         input.dataset.index = i;
 
-        if (cell === '.') {
+        if (ch === ".") {
           input.disabled = true;
-          input.classList.add('black');
+          input.classList.add("black");
+        } else {
+          input.addEventListener("input", handleInput);
+          input.addEventListener("keydown", handleKeyDown);
         }
 
-        input.addEventListener('input', handleInput);
-        input.addEventListener('keydown', handleKeyDown);
         cells.push(input);
         gridContainer.appendChild(input);
       });
+    }
 
-      // Clues
-      acrossList.innerHTML = '';
-      downList.innerHTML = '';
+    function renderClues() {
+      acrossList.innerHTML = "";
+      downList.innerHTML = "";
       puzzle.clues.across.forEach((c) => {
-        const li = document.createElement('li');
+        const li = document.createElement("li");
         li.textContent = c;
         acrossList.appendChild(li);
       });
       puzzle.clues.down.forEach((c) => {
-        const li = document.createElement('li');
+        const li = document.createElement("li");
         li.textContent = c;
         downList.appendChild(li);
       });
+    }
 
-      statusEl.textContent = '';
-    });
-
-    // Moves right on typing, left on backspace, and checks completion
     function handleInput(e) {
       const input = e.target;
       const idx = parseInt(input.dataset.index);
       const val = input.value.toUpperCase();
       input.value = val;
-
-      // move to next open cell
-      if (val && puzzle) {
-        moveToNextCell(idx);
-      }
-      checkCompletion();
+      if (val) moveToNext(idx);
+      checkSolved();
     }
 
     function handleKeyDown(e) {
       const idx = parseInt(e.target.dataset.index);
-      if (e.key === 'Backspace' && !e.target.value) {
-        moveToPrevCell(idx);
+      if (e.key === "Backspace" && !e.target.value) {
+        moveToPrev(idx);
       }
     }
 
-    function moveToNextCell(idx) {
-      const width = puzzle.width;
+    function moveToNext(idx) {
       for (let i = idx + 1; i < cells.length; i++) {
         if (!cells[i].disabled) {
           cells[i].focus();
@@ -169,7 +183,7 @@
       }
     }
 
-    function moveToPrevCell(idx) {
+    function moveToPrev(idx) {
       for (let i = idx - 1; i >= 0; i--) {
         if (!cells[i].disabled) {
           cells[i].focus();
@@ -178,17 +192,16 @@
       }
     }
 
-    function checkCompletion() {
-      if (!puzzle) return;
-      const solution = puzzle.solution.split('');
+    function checkSolved() {
+      const solution = puzzle.solution.split("");
       for (let i = 0; i < solution.length; i++) {
-        if (solution[i] === '.') continue; // skip black cells
+        if (solution[i] === ".") continue;
         if (cells[i].value.toUpperCase() !== solution[i].toUpperCase()) {
-          statusEl.textContent = '';
-          return; // not done yet
+          statusEl.textContent = "";
+          return;
         }
       }
-      statusEl.textContent = '✅ Puzzle Complete!';
+      statusEl.textContent = "✅ Puzzle Complete!";
     }
   </script>
 </body>
