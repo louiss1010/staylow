@@ -1,208 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crossword Player (.puz)</title>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YBRDL85ZJG"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YBRDL85ZJG');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stay Low</title>
   <style>
     body {
       font-family: system-ui, sans-serif;
-      background: #f8f9fa;
-      color: #222;
-      margin: 2rem;
-    }
-    h1 {
-      font-size: 1.6rem;
-      margin-bottom: 1rem;
-    }
-    input[type="file"] {
-      margin-bottom: 1rem;
-    }
-    #title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin: 0.5rem 0;
-    }
-    #grid {
-      display: grid;
-      gap: 2px;
-      margin-top: 1rem;
-      user-select: none;
-    }
-    .cell {
-      width: 30px;
-      height: 30px;
-      text-transform: uppercase;
-      text-align: center;
-      font-weight: bold;
-      font-size: 1rem;
-      border: 1px solid #bbb;
-      background: white;
-    }
-    .cell:focus {
-      outline: 2px solid #007bff;
-      background: #e6f0ff;
-    }
-    .black {
-      background: #000;
-      border: 1px solid #000;
-    }
-    #clues {
-      display: flex;
-      gap: 2rem;
-      margin-top: 1.5rem;
-    }
-    #clues h2 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
       margin: 0;
-      max-width: 300px;
+      padding: 0;
+      line-height: 1.6;
+      background: #f9fafb;
+      color: #111827;
     }
-    li {
-      font-size: 0.9rem;
-      margin-bottom: 0.25rem;
+    header {
+      background: #111827;
+      color: #f9fafb;
+      padding: 2rem;
+      text-align: center;
     }
-    #status {
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+    nav {
       margin-top: 1rem;
+    }
+    nav a {
+      color: #f9fafb;
+      margin: 0 0.5rem;
+      text-decoration: none;
       font-weight: bold;
-      color: green;
+    }
+    main {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #e5e7eb;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <h1>Crossword Player</h1>
-  <input type="file" id="fileInput" accept=".puz" />
-  <div id="title"></div>
-  <div id="grid"></div>
-  <div id="status"></div>
+  <header>
+    <h1>Stay Low</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="about">About</a>
+      <a href="projects">Projects</a>
+      <a href="contact">Contact</a>
+    </nav>
+  </header>
 
-  <div id="clues">
-    <div>
-      <h2>Across</h2>
-      <ul id="acrossList"></ul>
-    </div>
-    <div>
-      <h2>Down</h2>
-      <ul id="downList"></ul>
-    </div>
-  </div>
+  <main>
+    <h2>Crossword</h2>
+    
+    
+  </main>
 
-  <!-- puzjs library -->
-  <script src="https://unpkg.com/puzjs/dist/puz.js"></script>
-  <script>
-    const fileInput = document.getElementById("fileInput");
-    const gridContainer = document.getElementById("grid");
-    const titleEl = document.getElementById("title");
-    const statusEl = document.getElementById("status");
-    const acrossList = document.getElementById("acrossList");
-    const downList = document.getElementById("downList");
-
-    let puzzle = null;
-    let cells = [];
-
-    fileInput.addEventListener("change", async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const arrayBuffer = await file.arrayBuffer();
-      puzzle = PUZ.parse(new Uint8Array(arrayBuffer));
-
-      titleEl.textContent = puzzle.title || "(Untitled Crossword)";
-      renderGrid();
-      renderClues();
-      statusEl.textContent = "";
-    });
-
-    function renderGrid() {
-      const width = puzzle.width;
-      const height = puzzle.height;
-      const grid = puzzle.fill.split("");
-      gridContainer.style.gridTemplateColumns = `repeat(${width}, 30px)`;
-      gridContainer.innerHTML = "";
-      cells = [];
-
-      grid.forEach((ch, i) => {
-        const input = document.createElement("input");
-        input.maxLength = 1;
-        input.className = "cell";
-        input.dataset.index = i;
-
-        if (ch === ".") {
-          input.disabled = true;
-          input.classList.add("black");
-        } else {
-          input.addEventListener("input", handleInput);
-          input.addEventListener("keydown", handleKeyDown);
-        }
-
-        cells.push(input);
-        gridContainer.appendChild(input);
-      });
-    }
-
-    function renderClues() {
-      acrossList.innerHTML = "";
-      downList.innerHTML = "";
-      puzzle.clues.across.forEach((c) => {
-        const li = document.createElement("li");
-        li.textContent = c;
-        acrossList.appendChild(li);
-      });
-      puzzle.clues.down.forEach((c) => {
-        const li = document.createElement("li");
-        li.textContent = c;
-        downList.appendChild(li);
-      });
-    }
-
-    function handleInput(e) {
-      const input = e.target;
-      const idx = parseInt(input.dataset.index);
-      const val = input.value.toUpperCase();
-      input.value = val;
-      if (val) moveToNext(idx);
-      checkSolved();
-    }
-
-    function handleKeyDown(e) {
-      const idx = parseInt(e.target.dataset.index);
-      if (e.key === "Backspace" && !e.target.value) {
-        moveToPrev(idx);
-      }
-    }
-
-    function moveToNext(idx) {
-      for (let i = idx + 1; i < cells.length; i++) {
-        if (!cells[i].disabled) {
-          cells[i].focus();
-          break;
-        }
-      }
-    }
-
-    function moveToPrev(idx) {
-      for (let i = idx - 1; i >= 0; i--) {
-        if (!cells[i].disabled) {
-          cells[i].focus();
-          break;
-        }
-      }
-    }
-
-    function checkSolved() {
-      const solution = puzzle.solution.split("");
-      for (let i = 0; i < solution.length; i++) {
-        if (solution[i] === ".") continue;
-        if (cells[i].value.toUpperCase() !== solution[i].toUpperCase()) {
-          statusEl.textContent = "";
-          return;
-        }
-      }
-      statusEl.textContent = "✅ Puzzle Complete!";
-    }
-  </script>
+  <footer>
+    <p>© Louis Strehlow 2025</p>
+  </footer>
 </body>
 </html>
