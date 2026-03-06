@@ -60,14 +60,15 @@
 <body>
   <header>
     <h1>Stay Low</h1>
-    <nav>
-   <a href="/">Home</a>
-      <a href="about">About</a>
-      <a href="projects">Projects</a>
-      <a href="contact">Contact</a>
-      <a href="vexle">Vexle</a>
-      <a href="crossword">Crosswords</a>
-    </nav>
+  <div id="nav"></div>
+
+<script>
+fetch("nav.html")
+  .then(res => res.text())
+  .then(data => {
+    document.getElementById("nav").innerHTML = data;
+  });
+</script>
   </header>
 
   <main>
