@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YBRDL85ZJG"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YBRDL85ZJG');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+<script src="background.js"></script>
+  
+  <title>Stay Low</title>
+ <link rel="stylesheet" href="style.css">
+</head>
+<body class="home-page">
+  <header>
+   <div class="menu">
+    <h1>Stay Low</h1>
+  
+   <div id="nav"></div>
+
+
+
+<script>
+fetch("nav.html")
+  .then(res => res.text())
+  .then(data => {
+    document.getElementById("nav").innerHTML = data;
+  });
+</script>
+    </div>
+  </header>
+
+  <main>
+  
+
+   
+  </main>
+
+
+    <div class="copyright">
+  © <span id="year"></span> Louis Strehlow
+</div>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

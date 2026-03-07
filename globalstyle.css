@@ -1,0 +1,107 @@
+
+ body {
+    background: black;
+    color: white;
+    font-family: Avenir, sans-serif;
+    margin: 0;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menu {
+    text-align: center;
+}
+
+.home-page #nav .links {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+
+ .links a {
+    background: black;
+    color: white;
+    text-decoration: none;
+    font-size: 22px;
+    padding: 10px;
+    border: 1px solid white;
+    width: 200px;
+    text-align: center;
+
+    opacity: 0;
+    transform: translateY(-30px);
+    animation: dropIn 0.6s ease forwards;
+}
+
+/* animation delays */
+.menu a:nth-child(1) { animation-delay: 0.2s; }
+.menu a:nth-child(2) { animation-delay: 0.4s; }
+.menu a:nth-child(3) { animation-delay: 0.6s; }
+.menu a:nth-child(4) { animation-delay: 0.8s; }
+.menu a:nth-child(5) { animation-delay: 1.0s; }
+.menu a:nth-child(6) { animation-delay: 1.2s; }
+.menu a:nth-child(7) { animation-delay: 1.4s; }
+
+.menu a:hover {
+    background: white;
+    color: rgb(161, 159, 159);
+}
+
+@keyframes dropIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Top navigation bar */
+.inner-page #nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: black;
+    padding: 15px 0;
+    z-index: 1000;
+}
+
+/* Menu links container */
+.inner-page #nav .links {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+/* Individual links */
+.inner-page #nav .links a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 8px 12px;
+}
+
+#nav .links a:hover {
+    opacity: 0.7;
+}
+
+
+
+.copyright {
+    position: fixed;
+    bottom: 10px;
+    right: 15px;
+
+    font-size: 14px;
+    color: white;
+    opacity: 0.7;
+
+    font-family: Avenir, sans-serif;
+}
+
+
