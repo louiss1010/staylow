@@ -49,3 +49,8 @@
     color: rgb(161, 159, 159);
   }
 
+.iframe-wrapper {
+    border: 2px solid white;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 10);
+}
+
