@@ -1,6 +1,6 @@
 # Stay Low
 
-Personal website for Louis Strehlow — [staylow.uk](https://staylow.uk)
+Personal website for Louis Strehlow - [staylow.uk](https://staylow.uk)
 
 ## About
 
@@ -13,7 +13,7 @@ A static site built with HTML, CSS, and vanilla JavaScript. Hosted on GitHub Pag
 ├── about/               # About page
 ├── contact/             # Contact page
 ├── crosswords/          # Crosswords page
-├── projects/            # Projects page (includes the Connect 4 game build)
+├── projects/            # Projects page
 ├── nav.html             # Shared navigation, loaded into every page via fetch
 ├── globalstyle.css      # Shared styles (buttons, copyright footer, etc.)
 ├── indexstyle.css       # Home page styles
