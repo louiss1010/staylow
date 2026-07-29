@@ -1,0 +1,51 @@
+
+ .email-link {
+    color: white;
+    text-decoration: none;
+  }
+
+  .email-link:hover {
+    color: rgb(161, 159, 159);
+  }
+
+.copyright {
+    position: fixed;
+    bottom: 10px;
+    right: 15px;
+
+    font-size: 14px;
+    color: white;
+    opacity: 0.7;
+
+    font-family: Avenir, sans-serif;
+}
+
+ .pdf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: black;
+    color: white;
+    border: 1px solid white;
+    text-decoration: none;
+    font-family: Avenir;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .pdf-btn:hover {
+    background: white;
+    color: rgb(161, 159, 159);
+  }
+
+  .pdf-btn svg {
+    flex-shrink: 0;
+  }
+
+  .pdf-btn:hover svg path,
+  .pdf-btn:hover svg rect {
+    color: rgb(161, 159, 159);
+  }
+

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YBRDL85ZJG"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YBRDL85ZJG');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stay Low</title>
+  <link rel="stylesheet" href="/globalstyle.css">
+  <link rel="stylesheet" href="/innerstyle.css">
+</head>
+<body class="inner-page">
+  <header>
+ <div id="nav"></div>
+ <h1>Projects</h1>
+   <h3>Master's Thesis</h3>
+   <a href="diss.pdf" class="pdf-btn">
+  <svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+    <path d="M11 1H3a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7L11 1z"/>
+    <polyline points="11 1 11 7 17 7"/>
+    <line x1="5" y1="12" x2="13" y2="12"/>
+    <line x1="5" y1="16" x2="10" y2="16"/>
+  </svg>
+  Energy Conditions and Weakening the Cosmic No-Hair Theorem
+</a>
+    <p>Abstract: We study various types of energy conditions used in general relativity and quantum field theory, particularly in the context of the Cosmic No-Hair Theorem. We first review pointwise energy conditions and derive the Raychaudhuri and Gauss-Codazzi equations. Next, we review Wald’s Cosmic No-Hair Theorem, which considers initially expanding homogeneous spacetimes satisfying Einstein’s equation with positive cosmological constant Λ. This theorem shows that, for all cosmological models except Bianchi type IX, the spacetime locally approaches de Sitter at late times. We then review averaged energy conditions and quantum energy inequalities, which are generally weaker than their pointwise counterparts. We conclude by discussing the effects of using some of these weaker energy conditions in the framework of the Cosmic No-Hair Theorem.</p>
+
+    <h3>Undergrad Summer Project</h3>
+     <a href="Asymptotic_Decomposition_of_a_Scalar_Field_on_de_Sitter_Space.pdf" class="pdf-btn">
+  <svg width="18" height="22" viewBox="0 0 18 22" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+    <path d="M11 1H3a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7L11 1z"/>
+    <polyline points="11 1 11 7 17 7"/>
+    <line x1="5" y1="12" x2="13" y2="12"/>
+    <line x1="5" y1="16" x2="10" y2="16"/>
+  </svg>
+  Asymptotic Decomposition of a Scalar Field on de-Sitter Space
+</a>
+   <p>Abstract: We study the asymptotic behaviour of a scalar field satisfying the linear conformal wave equation on four-dimensional de Sitter space. Using the conformal method, we derive the first three coefficients of an asymptotic expansion of the scalar field into exponentially-decaying components, and conjecture the general form of an arbitrary coefficient. We also develop an independent approach using quasinormal modes, which provides a full asymptotic expansion by exploiting a compactification at the cosmological horizon. The two methods are shown to agree, providing mutual confirmation of the conjectured expansion coefficients.</p>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <script>
+fetch("nav.html")
+  .then(res => res.text())
+  .then(data => {
+    document.getElementById("nav").innerHTML = data;
+  });
+</script>
+
+    </header>
+
+  <main>
+    
+  </main>
+
+       <div class="copyright">
+  © <span id="year"></span> Louis Strehlow
+</div>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

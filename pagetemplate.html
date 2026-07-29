@@ -1,0 +1,48 @@
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YBRDL85ZJG"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YBRDL85ZJG');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stay Low</title>
+  <link rel="stylesheet" href="/globalstyle.css">
+  <link rel="stylesheet" href="/innerstyle.css">
+</head>
+<body class="inner-page">
+  <header>
+ <div id="nav"></div>
+ <h1>About</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam bibendum placerat nisl, nec pretium leo dapibus ut. Donec mauris sapien, accumsan sed consectetur vitae, aliquam in arcu. Nunc vitae vestibulum lacus. Cras sed finibus diam, ut feugiat dui. Maecenas scelerisque efficitur libero, non suscipit libero feugiat sed. Mauris non lobortis nibh. Proin efficitur rutrum molestie. Vestibulum eget commodo est. Donec imperdiet condimentum urna, et posuere nibh rutrum quis. Maecenas egestas erat enim, eu commodo turpis congue sed. Nunc purus lectus, imperdiet ullamcorper tempor nec, blandit vel magna.</p>
+
+<script>
+fetch("nav.html")
+  .then(res => res.text())
+  .then(data => {
+    document.getElementById("nav").innerHTML = data;
+  });
+</script>
+
+    </header>
+
+  <main>
+    
+  </main>
+
+       <div class="copyright">
+  © <span id="year"></span> Louis Strehlow
+</div>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

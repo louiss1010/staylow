@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YBRDL85ZJG"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-YBRDL85ZJG');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stay Low</title>
+  <link rel="stylesheet" href="/globalstyle.css">
+  <link rel="stylesheet" href="/crosswordsstyle.css">
+</head>
+<body class="inner-page">
+  <header>
+ <div id="nav"></div>
+ <h1>Crosswords</h1>
+    <div class="iframe-wrapper">
+  <iframe 
+          title="Crosshare embed"
+          style="height: 90vh; width: 100%;" 
+          src="https://crosshare.org/embed/list/RejzciZx8sR6Qg5429rfCMaYyLs1?dark=true"  
+          allowfullscreen="true"          
+          allow="clipboard-write *">
+      </iframe>
+</div>
+<script>
+fetch("nav.html")
+  .then(res => res.text())
+  .then(data => {
+    document.getElementById("nav").innerHTML = data;
+  });
+</script>
+
+    </header>
+
+  <main>
+    
+  </main>
+
+       <div class="copyright">
+  © <span id="year"></span> Louis Strehlow
+</div>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
