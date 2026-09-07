@@ -18,6 +18,11 @@ body {
     text-align: center;
 }
 
+#nav {
+    min-height: 345px;
+}
+
+
 .links {
     display: flex;
     flex-direction: column;
