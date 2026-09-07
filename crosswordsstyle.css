@@ -11,6 +11,21 @@ body {
     align-items: center;
 }
 
+main {
+    display: block;
+    width: 100%;
+}
+
+main iframe {
+    width: 100% !important;
+    max-width: none;
+}
+
+header {
+    display: block;
+    width: 100%;
+}
+
 h1 {
     text-align: center;
 }
@@ -66,7 +81,11 @@ h1 {
 }
 
 .iframe-wrapper {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 4px;
     border: 2px solid white;
-       
-    box-shadow: 0 0 20px rgba(255, 255, 255, 10); 
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
 }
