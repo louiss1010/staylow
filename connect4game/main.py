@@ -47,6 +47,11 @@ move_counts = []
 # delay between game ending and UI appearing
 game_end_delay = 1000
 
+# falling piece animation global variables
+GRAVITY = 1.5
+BOUNCE_DAMPING = 0.35
+MAX_BOUNCES = 2
+
 # initialising fonts
 large_font = pygame.font.Font("fonts/PressStart2P-Regular.ttf", 50)
 medium_font = pygame.font.Font("fonts/PressStart2P-Regular.ttf", 25)
@@ -140,12 +145,24 @@ def display_board(board:list):
     # displays the pieces, red or yellow, first, depending on the board state
     for i in range(0,6,1):
         for j in range(0,7,1):
+            # skip the piece that is currently falling, it's drawn when animating finishes in the current slot
+            if animating and i == anim_row and j == anim_col:
+                continue
             if board[i][j] == red:
                 red_rect.center = ((j+1)*100 , (i+1)*100 + 50)
                 screen.blit(red_surf, red_rect)
             elif board[i][j] == yellow:
                 yellow_rect.center = ((j+1)*100 , (i+1)*100 + 50)
                 screen.blit(yellow_surf, yellow_rect)
+
+    # draws the falling piece behind the slots
+    if animating:
+        if anim_player == 1:
+            red_rect.center = ((anim_col+1)*100, anim_y)
+            screen.blit(red_surf, red_rect)
+        else:
+            yellow_rect.center = ((anim_col+1)*100, anim_y)
+            screen.blit(yellow_surf, yellow_rect)
 
     # displays the slots over the pieces to look like the pieces are "inside" the board
     for i in range(0,7,1):
@@ -234,6 +251,59 @@ def drop_piece(board:list, column:int, player:int):
             global last_move
             last_move = [i, column]
             return board
+
+
+def start_drop_animation(row: int, column: int, player: int):
+    """
+    Starts the falling animation for a piece that has just been played
+
+    Args:
+        row - the row the piece landed in (int)
+        column - the column the piece was dropped into (int)
+        player - the player who dropped the piece (1 or 2)
+
+    Returns:
+        None
+    """
+    global animating, anim_row, anim_col, anim_y, anim_vel, anim_bounces, anim_player
+
+    animating = True
+    anim_row = row
+    anim_col = column
+    anim_y = 50 # same height as hovering piece
+    anim_vel = 0
+    anim_bounces = 0
+    anim_player = player
+
+
+def update_drop_animation():
+    """
+    Moves the falling piece one frame. Applies gravity, bounces it when it reaches its slot.
+    End the animation once it has settled.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    global animating, anim_y, anim_vel, anim_bounces
+
+    if not animating:
+        return
+
+    target_y = (anim_row + 1) * 100 + 50
+    anim_vel += GRAVITY
+    anim_y += anim_vel
+
+    # the piece has reached (or passed) its slot
+    if anim_y >= target_y:
+        anim_y = target_y
+        if anim_bounces >= MAX_BOUNCES or anim_vel < 4:
+            animating = False
+        else:
+            anim_vel = -anim_vel * BOUNCE_DAMPING
+            anim_bounces += 1
 
 
 def draw_check(board:list):
@@ -462,11 +532,12 @@ def start_new_game():
     Returns:
         None
     """
-    global board, game_ended, draw_occurred, local_move_count
+    global board, game_ended, draw_occurred, local_move_count, animating
     board = create_board()
     game_ended = False
     draw_occurred = False
     local_move_count = 0
+    animationg = False
 
 
 # ---------------------------------------------------------------------------
@@ -494,11 +565,22 @@ end_time = 0
 game_end_text_surface = None
 game_end_text_rect = None
 
+ #falling piece animation variables
+animating = False
+anim_row = 0
+anim_col = 0
+anim_y = 0
+anim_vel = 0
+anim_bounces = 0
+anim_player = 1
+
 
 async def main():
     global state, player_turn, player1_wins, player2_wins, draws, games_played, move_counts
     global board, game_ended, draw_occurred, local_move_count, end_time
     global game_end_text_surface, game_end_text_rect
+
+   
 
     running = True
 
@@ -525,12 +607,13 @@ async def main():
 
                 # --- PLAY clicks ---
                 elif state == "play":
-                    if not game_ended:
+                    if not game_ended and not animating:
                         column = get_column_when_clicked(mouse_x)
                         # do nothing if the column is None (safety net) or the column is full
                         if column is not None and valid_drop(board, column):
 
                             drop_piece(board, column, player_turn)
+                            start_drop_animation(last_move[0], column, player_turn)
                             local_move_count += 1
 
                             # check if the last move made a connect 4
@@ -601,6 +684,7 @@ async def main():
 
 
         elif state == "play":
+            update_drop_animation()
             display_board(board)
 
             if game_ended:
@@ -611,7 +695,7 @@ async def main():
                         screen.blit(game_end_main_menu_surface_hover, game_end_main_menu_rect)
                     else:
                         screen.blit(game_end_main_menu_surface, game_end_main_menu_rect)
-            else:
+            elif not animating:
                 display_hovering_piece(mouse_x)
 
         elif state == "stats":
